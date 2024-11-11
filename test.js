@@ -3,13 +3,13 @@ const crypto = require("crypto");
 
 async function handleRegisterUser(req, res) {
   try {
-    const { username, password, email, referrerCode } = req.body;
+    const { username, password, email, referrerCode, XP } = req.body;
 
     if (!username || !password || !email) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Generate a new referral code for the user
+    // Generating Referal
     function generateReferralCode(length = 4) {
       return crypto
         .randomBytes(Math.ceil(length / 2))
@@ -19,43 +19,47 @@ async function handleRegisterUser(req, res) {
     }
 
     const referralCode = generateReferralCode();
-    // check refrrer provided
-    let referrer = null;
+
+    let referrer;
     if (referrerCode) {
       referrer = await User.findOne({ referralCode: referrerCode });
       if (!referrer) {
-        return res.status(400).json({ message: "Invalid referral code" });
+        return res.status(400).json({ message: "Referral code is incorrect." });
       }
     }
 
-    // Create new user with or without a referrer
     const newUser = new User({
       username,
       password,
       email,
       referrer: referrer ? referrer._id : null,
-      level: 1,
       referralCode,
+      referralCount: 0,
+      XP,
     });
 
-    // Save the new user
     await newUser.save();
 
-    // Update levels of referring user, if applicable
-    const referrerIds = [];
     if (referrer) {
-      async function updateLevels(user) {
+      referrer.referralCount += 1;
+      await referrer.save();
+
+      async function updateLevels(user, level = 1) {
         if (!user.referrer) {
           return;
         }
-        referrerIds.push(referrer._id);
+        const XP = 100;
         const parent = await User.findById(user.referrer);
-        parent.level = Math.min(parent.level + 1, 5);
+        const levelKey = `level${level}`;
+        if (!parent[levelKey].includes(newUser._id)) {
+          parent[levelKey].push(newUser._id);
+          parent.XP += XP;
+        }
         await parent.save();
-        // Recursively update parent levels
-        updateLevels(parent);
+        if (level < 5) {
+          await updateLevels(parent, level + 1);
+        }
       }
-      // Only update if there's a referrer
       await updateLevels(newUser);
     }
 

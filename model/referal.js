@@ -10,38 +10,52 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
   },
-  referralCode: {
-    type: String,
-  },
   referrer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  referrals: [
+  referralCode: {
+    type: String,
+    unique: true,
+  },
+  referralCount: {
+    type: Number,
+    default: 0,
+  },
+  XP: {
+    type: Number,
+    default: 0,
+  },
+  level1: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
-  referralCount: {
-    type: Number,
-  },
-  level: {
-    type: Number,
-    default: 1,
-  },
-  level2: {
-    type: Number,
-  },
-  level3: {
-    type: Number,
-  },
-  level4: {
-    type: Number,
-  },
-  level5: {
-    type: Number,
-  },
+  level2: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  level3: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  level4: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  level5: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);
