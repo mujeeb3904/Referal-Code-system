@@ -8,7 +8,7 @@ const port = 2000;
 app.use(express.json());
 
 connectToMongoDB(
-  "mongodb+srv://blog-crud:9503904mma@projects.wtj81.mongodb.net/?retryWrites=true&w=majority&appName=Projects/ReferalSystem"
+  "mongodb+src://+++++++++:--------------++++++++++++-------------------+++++++++++------------+++++++++++--------++++++++++"
 )
   .then(() => {
     console.log("MongoDB Connected");
